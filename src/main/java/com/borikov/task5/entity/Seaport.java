@@ -1,25 +1,36 @@
 package com.borikov.task5.entity;
 
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Seaport {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static Seaport instance;
     private static final int AMOUNT_OF_PIERS = 3;
-    private List<Pier> freePiers;
-    private List<Pier> busyPiers;
-    private static Lock lock = new ReentrantLock();
+    private final List<Pier> freePiers = new ArrayList<>();
+    private final List<Pier> busyPiers = new ArrayList<>();
+    private static final Lock lock = new ReentrantLock();
+    private static final Condition condition = lock.newCondition();
 
     private Seaport() {
-        busyPiers = new ArrayList<>();
-        freePiers = new ArrayList<>();
+        for (int i = 0; i < AMOUNT_OF_PIERS; i++) {
+            Pier pier = new Pier();
+            freePiers.add(pier);
+        }
     }
 
     public static Seaport getInstance() {
-        lock.lock();
         try {
+            lock.lock();
             if (instance == null) {
                 instance = new Seaport();
             }
@@ -27,5 +38,39 @@ public class Seaport {
             lock.unlock();
         }
         return instance;
+    }
+
+    public Pier getPier() {
+        try {
+            lock.lock();
+            while (freePiers.stream().filter(p -> p.isFree()).findAny().isEmpty()) {
+                try {
+                    condition.await();
+                } catch (InterruptedException e) {
+                    LOGGER.log(Level.WARN, "Thread was interrupted");
+                }
+            }
+            Optional<Pier> pierOptional = freePiers.stream().filter(p -> p.isFree()).findAny();
+            Pier pier = pierOptional.get();
+            freePiers.remove(pier);
+            pier.setFree(false);
+            busyPiers.add(pier);
+            return pier;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void releasePier(Pier pier) {
+        try {
+            lock.lock();
+            if (busyPiers.remove(pier)) {
+                pier.setFree(true);
+                freePiers.add(pier);
+            }
+        } finally {
+            condition.signal();
+            lock.unlock();
+        }
     }
 }

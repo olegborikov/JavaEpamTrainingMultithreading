@@ -2,9 +2,7 @@ package com.borikov.task5.entity;
 
 import com.borikov.task5.util.IdGenerator;
 
-import java.util.concurrent.Callable;
-
-public class Ship implements Callable<Ship> {
+public class Ship implements Runnable {
     private final long shipId;
     private int capacity;
     private int amountOfContainers;
@@ -36,8 +34,10 @@ public class Ship implements Callable<Ship> {
     }
 
     @Override
-    public Ship call() throws Exception {
-        return null;
+    public void run() {
+        Seaport seaport = Seaport.getInstance();
+        Pier pier = seaport.getPier();
+        // TODO: 22.09.2020 exception throw if capacity dont suit?
     }
 
     @Override
