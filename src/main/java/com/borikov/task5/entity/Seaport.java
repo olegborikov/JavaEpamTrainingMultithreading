@@ -1,6 +1,5 @@
 package com.borikov.task5.entity;
 
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,17 +42,16 @@ public class Seaport {
     public Pier getPier() {
         try {
             lock.lock();
-            while (freePiers.stream().filter(p -> p.isFree()).findAny().isEmpty()) {
+            while (freePiers.isEmpty()) {
                 try {
                     condition.await();
                 } catch (InterruptedException e) {
                     LOGGER.log(Level.WARN, "Thread was interrupted");
                 }
             }
-            Optional<Pier> pierOptional = freePiers.stream().filter(p -> p.isFree()).findAny();
+            Optional<Pier> pierOptional = freePiers.stream().findAny();
             Pier pier = pierOptional.get();
             freePiers.remove(pier);
-            pier.setFree(false);
             busyPiers.add(pier);
             return pier;
         } finally {
@@ -65,7 +63,6 @@ public class Seaport {
         try {
             lock.lock();
             if (busyPiers.remove(pier)) {
-                pier.setFree(true);
                 freePiers.add(pier);
             }
         } finally {

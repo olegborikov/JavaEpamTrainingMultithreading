@@ -1,0 +1,18 @@
+package com.borikov.task5.creator;
+
+import com.borikov.task5.entity.Ship;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+
+public class ShipCreator {
+    private static final Logger LOGGER = LogManager.getLogger();
+
+    public Ship createFromNumbers(List<Integer> numbers) {
+        Ship ship = new Ship(numbers.get(0), numbers.get(1));
+        LOGGER.log(Level.INFO, "{} was created", ship);
+        return ship;
+    }
+}

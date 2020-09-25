@@ -6,11 +6,9 @@ public class Pier {
     private final long pierId;
     private int capacity;
     private int amountOfContainers;
-    private boolean isFree;
 
     public Pier() {
         this.pierId = IdGenerator.generateId();
-        isFree = true;
     }
 
     public long getPierId() {
@@ -31,14 +29,6 @@ public class Pier {
 
     public void setAmountOfContainers(int amountOfContainers) {
         this.amountOfContainers = amountOfContainers;
-    }
-
-    public boolean isFree() {
-        return isFree;
-    }
-
-    public void setFree(boolean free) {
-        isFree = free;
     }
 
     @Override
