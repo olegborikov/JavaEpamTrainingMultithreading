@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class SeaportMain {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String FILE_PATH = "input/data.txt";
+    private static final String SHIP_NAME = "Ship";
 
     public static void main(String[] args) {
         CustomFileReader customFileReader = new CustomFileReader();
@@ -28,13 +29,17 @@ public class SeaportMain {
             ships.add(ship);
         }
         for (Ship ship : ships) {
-            try {
+
                 Thread thread = new Thread(ship);
+                thread.setName(SHIP_NAME + ship.getShipId());
                 thread.start();
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                LOGGER.log(Level.ERROR, "Thread was interrupted");
-            }
+
         }
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(ships);
     }
 }

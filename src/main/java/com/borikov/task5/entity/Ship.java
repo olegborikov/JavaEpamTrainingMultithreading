@@ -1,16 +1,31 @@
 package com.borikov.task5.entity;
 
+import com.borikov.task5.entity.state.ShipState;
+import com.borikov.task5.entity.state.impl.ShipArriving;
 import com.borikov.task5.util.IdGenerator;
 
 public class Ship implements Runnable {
     private final long shipId;
-    private int capacity;
-    private int amountOfContainers;
+    private final int capacity;
+    private int fullness;
+    private ShipAppointment shipAppointment;
+    private ShipState shipState;
+    private Pier pier;
 
-    public Ship(int capacity, int amountOfContainers) {
-        this.shipId = IdGenerator.generateId();
+    public Ship(int capacity, int fullness, ShipAppointment shipAppointment) {
+        shipId = IdGenerator.generateId();
         this.capacity = capacity;
-        this.amountOfContainers = amountOfContainers;
+        this.fullness = fullness;
+        this.shipAppointment = shipAppointment;
+        shipState = new ShipArriving();
+    }
+
+    public Pier getPier() {
+        return pier;
+    }
+
+    public void setPier(Pier pier) {
+        this.pier = pier;
     }
 
     public long getShipId() {
@@ -21,49 +36,35 @@ public class Ship implements Runnable {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public int getFullness() {
+        return fullness;
     }
 
-    public int getAmountOfContainers() {
-        return amountOfContainers;
+    public void setFullness(int fullness) {
+        this.fullness = fullness;
     }
 
-    public void setAmountOfContainers(int amountOfContainers) {
-        this.amountOfContainers = amountOfContainers;
+    public ShipAppointment getShipAppointment() {
+        return shipAppointment;
+    }
+
+    public void setShipAppointment(ShipAppointment shipAppointment) {
+        this.shipAppointment = shipAppointment;
+    }
+
+    public ShipState getShipState() {
+        return shipState;
+    }
+
+    public void setShipState(ShipState shipState) {
+        this.shipState = shipState;
     }
 
     @Override
     public void run() {
-        Seaport seaport = Seaport.getInstance();
-        Pier pier = seaport.getPier();
-        // TODO: 22.09.2020 exception throw if capacity dont suit?
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Ship ship = (Ship) o;
-        if (shipId != ship.shipId) {
-            return false;
-        }
-        if (capacity != ship.capacity) {
-            return false;
-        }
-        return amountOfContainers == ship.amountOfContainers;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (int) (shipId ^ (shipId >>> 32));
-        result = 31 * result + capacity;
-        result = 31 * result + amountOfContainers;
-        return result;
+        shipState.doAction(this);
+        shipState.doAction(this);
+        shipState.doAction(this);
     }
 
     @Override
@@ -71,7 +72,10 @@ public class Ship implements Runnable {
         final StringBuilder sb = new StringBuilder("Ship{");
         sb.append("shipId=").append(shipId);
         sb.append(", capacity=").append(capacity);
-        sb.append(", amountOfContainers=").append(amountOfContainers);
+        sb.append(", fullness=").append(fullness);
+        sb.append(", shipAppointment=").append(shipAppointment);
+        sb.append(", shipState=").append(shipState);
+        sb.append(", pier=").append(pier);
         sb.append('}');
         return sb.toString();
     }
