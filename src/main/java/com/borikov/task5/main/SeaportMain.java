@@ -29,17 +29,14 @@ public class SeaportMain {
             ships.add(ship);
         }
         for (Ship ship : ships) {
-
+            try {
                 Thread thread = new Thread(ship);
                 thread.setName(SHIP_NAME + ship.getShipId());
                 thread.start();
-
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.ERROR, "Thread was interrupted");
+            }
         }
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(ships);
     }
 }

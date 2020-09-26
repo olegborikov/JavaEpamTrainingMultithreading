@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Optional;
+
 public class ShipArriving implements ShipState {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -15,19 +17,25 @@ public class ShipArriving implements ShipState {
     public void doAction(Ship ship) {
         Seaport seaport = Seaport.getInstance();
         Pier pier = seaport.getPier();
-        ship.setPier(pier);
+        ship.setPier(Optional.of(pier));
         switch (ship.getShipAppointment()) {
-            case LOADING: {
+            case LOADING -> {
                 ship.setShipState(new ShipLoading());
-                LOGGER.log(Level.INFO, "Ship {} arrived to seaport and direct to port {} for loading",
+                LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct to " +
+                                "port № {} for loading",
                         ship.getShipId(), pier.getPierId());
-                break;
             }
-            case UNLOADING: {
+            case UNLOADING -> {
                 ship.setShipState(new ShipUnloading());
-                LOGGER.log(Level.INFO, "Ship {} arrived to seaport and direct to port {} for unloading",
+                LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct " +
+                                "to port № {} for unloading",
                         ship.getShipId(), pier.getPierId());
-                break;
+            }
+            case UNLOADING_LOADING -> {
+                ship.setShipState(new ShipUnloadingLoading());
+                LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct " +
+                                "to port № {} for unloading and loading",
+                        ship.getShipId(), pier.getPierId());
             }
         }
     }

@@ -13,9 +13,8 @@ public class ShipUnloading implements ShipState {
     @Override
     public void doAction(Ship ship) {
         Seaport seaport = Seaport.getInstance();
-        seaport.addContainers(ship.getFullness());
-        ship.setFullness(0);
-        LOGGER.log(Level.INFO, "Ship {} was unloaded", ship.getShipId());
+        seaport.unloadShip(ship);
+        LOGGER.log(Level.INFO, "Ship № {} was unloaded", ship.getShipId());
         ship.setShipState(new ShipDeparting());
     }
 }
