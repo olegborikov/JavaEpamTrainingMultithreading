@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,7 +17,7 @@ public class Seaport {
     private static final Logger LOGGER = LogManager.getLogger();
     private static Seaport instance;
     private static final int AMOUNT_OF_PIERS = 3;
-    private static final int CAPACITY = 10;
+    private final int capacity = 10;
     private AtomicInteger fullness;
     private final List<Pier> freePiers = new ArrayList<>();
     private final List<Pier> busyPiers = new ArrayList<>();
@@ -31,12 +32,20 @@ public class Seaport {
         }
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
     public AtomicInteger getFullness() {
         return fullness;
     }
 
-    public void setFullness(AtomicInteger fullness) {
-        this.fullness = fullness;
+    public List<Pier> getFreePiers() {
+        return Collections.unmodifiableList(freePiers);
+    }
+
+    public List<Pier> getBusyPiers() {
+        return Collections.unmodifiableList(busyPiers);
     }
 
     public static Seaport getInstance() {
@@ -96,18 +105,28 @@ public class Seaport {
 
     public void unloadShip(Ship ship) {
         LOGGER.log(Level.INFO, "Ship № {} is unloading", ship.getShipId());
-        while (fullness.get() + 1 <= CAPACITY && ship.getContainer()) {
+        while (fullness.get() + 1 <= capacity && ship.getContainer()) {
             fullness.incrementAndGet();
         }
-        if (fullness.get() == CAPACITY) {
+        if (fullness.get() == capacity) {
             LOGGER.log(Level.INFO, "Seaport has no more free space left");
         }
     }
 
     @Override
+    public int hashCode() {
+        int result = capacity;
+        result = 31 * result + (fullness != null ? fullness.hashCode() : 0);
+        result = 31 * result + (freePiers != null ? freePiers.hashCode() : 0);
+        result = 31 * result + (busyPiers != null ? busyPiers.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Seaport{");
-        sb.append("fullness=").append(fullness);
+        sb.append("capacity=").append(capacity);
+        sb.append(", fullness=").append(fullness);
         sb.append(", freePiers=").append(freePiers);
         sb.append(", busyPiers=").append(busyPiers);
         sb.append('}');

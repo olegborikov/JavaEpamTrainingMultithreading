@@ -18,11 +18,11 @@ public class SeaportMain {
     private static final String SHIP_NAME = "Ship";
 
     public static void main(String[] args) {
+        List<Ship> ships = new ArrayList<>();
         CustomFileReader customFileReader = new CustomFileReader();
+        List<String> readLines = customFileReader.readText(FILE_PATH);
         DataParser dataParser = new DataParser();
         ShipCreator shipCreator = new ShipCreator();
-        List<Ship> ships = new ArrayList<>();
-        List<String> readLines = customFileReader.readText(FILE_PATH);
         for (String line : readLines) {
             List<Integer> numbers = dataParser.parseLineToNumberList(line);
             Ship ship = shipCreator.createFromNumbers(numbers);

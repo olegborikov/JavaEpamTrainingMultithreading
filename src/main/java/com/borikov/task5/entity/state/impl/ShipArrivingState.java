@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
-public class ShipArriving implements ShipState {
+public class ShipArrivingState implements ShipState {
     private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
@@ -20,19 +20,17 @@ public class ShipArriving implements ShipState {
         ship.setPier(Optional.of(pier));
         switch (ship.getShipAppointment()) {
             case LOADING -> {
-                ship.setShipState(new ShipLoading());
+                ship.setShipState(new ShipLoadingState());
                 LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct to " +
-                                "port № {} for loading",
-                        ship.getShipId(), pier.getPierId());
+                        "port № {} for loading", ship.getShipId(), pier.getPierId());
             }
             case UNLOADING -> {
-                ship.setShipState(new ShipUnloading());
+                ship.setShipState(new ShipUnloadingState());
                 LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct " +
-                                "to port № {} for unloading",
-                        ship.getShipId(), pier.getPierId());
+                        "to port № {} for unloading", ship.getShipId(), pier.getPierId());
             }
             case UNLOADING_LOADING -> {
-                ship.setShipState(new ShipUnloadingLoading());
+                ship.setShipState(new ShipUnloadingState());
                 LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct " +
                                 "to port № {} for unloading and loading",
                         ship.getShipId(), pier.getPierId());

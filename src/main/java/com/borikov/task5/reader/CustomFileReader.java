@@ -16,10 +16,6 @@ public class CustomFileReader {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public List<String> readText(String fileName) {
-        if (fileName == null || !Files.exists(Paths.get(fileName))) {
-            LOGGER.log(Level.ERROR, "File is not exists");
-            throw new RuntimeException("File is not exists");
-        }
         Path path = Paths.get(fileName);
         try (Stream<String> linedTextStream = Files.lines(path)) {
             List<String> linedTextList = linedTextStream.collect(Collectors.toList());
