@@ -1,7 +1,6 @@
 package com.borikov.task5.entity;
 
 import com.borikov.task5.entity.state.ShipState;
-import com.borikov.task5.entity.state.impl.ShipArrivingState;
 import com.borikov.task5.entity.state.impl.ShipSailingState;
 import com.borikov.task5.util.IdGenerator;
 import org.apache.logging.log4j.Level;
@@ -9,23 +8,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ship implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger();
     private final long shipId;
     private final int capacity;
-    private AtomicInteger fullness;
+    private int fullness;
     private ShipAppointment shipAppointment;
     private ShipState shipState;
     private Optional<Pier> pier;
 
-    public Ship(int capacity, AtomicInteger fullness, ShipAppointment shipAppointment) {
+    public Ship(int capacity, int fullness, ShipAppointment shipAppointment) {
         shipId = IdGenerator.generateId();
         this.capacity = capacity;
         this.fullness = fullness;
         this.shipAppointment = shipAppointment;
-        shipState = new ShipArrivingState();
+        shipState = new ShipSailingState();
     }
 
     public long getShipId() {
@@ -36,7 +34,7 @@ public class Ship implements Runnable {
         return capacity;
     }
 
-    public AtomicInteger getFullness() {
+    public int getFullness() {
         return fullness;
     }
 
@@ -64,30 +62,34 @@ public class Ship implements Runnable {
         this.pier = pier;
     }
 
-    public boolean addContainer() {
-        boolean result;
-        if (fullness.get() + 1 <= capacity) {
-            fullness.incrementAndGet();
-            LOGGER.log(Level.INFO, "Container was load to ship № {}", shipId);
-            result = true;
-        } else {
+    public boolean isFull() {
+        boolean result = fullness == capacity;
+        if (result) {
             LOGGER.log(Level.INFO, "Ship № {} has no free space left", shipId);
-            result = false;
         }
         return result;
     }
 
-    public boolean getContainer() {
-        boolean result;
-        if (fullness.get() > 0) {
-            fullness.decrementAndGet();
-            LOGGER.log(Level.INFO, "Container was unload from ship № {}", shipId);
-            result = true;
-        } else {
+    public boolean isEmpty() {
+        boolean result = fullness == 0;
+        if (result) {
             LOGGER.log(Level.INFO, "Ship № {} has no containers left", shipId);
-            result = false;
         }
         return result;
+    }
+
+    public void addContainer() {
+        fullness++;
+        LOGGER.log(Level.INFO, "Container was load to ship № {}", shipId);
+        LOGGER.log(Level.INFO, "Ship № {} capacity: {}, fullness: {}",
+                shipId, capacity, fullness);
+    }
+
+    public void deleteContainer() {
+        fullness--;
+        LOGGER.log(Level.INFO, "Container was unload from ship № {}", shipId);
+        LOGGER.log(Level.INFO, "Ship № {} capacity: {}, fullness: {}",
+                shipId, capacity, fullness);
     }
 
     @Override
@@ -112,8 +114,7 @@ public class Ship implements Runnable {
         if (capacity != ship.capacity) {
             return false;
         }
-        if (fullness != null ? !fullness.equals(ship.fullness)
-                : ship.fullness != null) {
+        if (fullness != ship.fullness) {
             return false;
         }
         if (shipAppointment != ship.shipAppointment) {
@@ -130,7 +131,7 @@ public class Ship implements Runnable {
     public int hashCode() {
         int result = (int) (shipId ^ (shipId >>> 32));
         result = 31 * result + capacity;
-        result = 31 * result + (fullness != null ? fullness.hashCode() : 0);
+        result = 31 * result + fullness;
         result = 31 * result + (shipAppointment != null ? shipAppointment.hashCode() : 0);
         result = 31 * result + (shipState != null ? shipState.hashCode() : 0);
         result = 31 * result + (pier != null ? pier.hashCode() : 0);

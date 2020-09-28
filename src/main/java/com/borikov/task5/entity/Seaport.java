@@ -22,7 +22,9 @@ public class Seaport {
     private final List<Pier> freePiers = new ArrayList<>();
     private final List<Pier> busyPiers = new ArrayList<>();
     private static final Lock lock = new ReentrantLock();
-    private static final Condition condition = lock.newCondition();
+    private static final Lock pierLock = new ReentrantLock();
+    private static final Lock seaportLock = new ReentrantLock();
+    private static final Condition pierCondition = pierLock.newCondition();
 
     private Seaport() {
         fullness = new AtomicInteger();
@@ -63,10 +65,10 @@ public class Seaport {
 
     public Pier getPier() {
         try {
-            lock.lock();
+            pierLock.lock();
             while (freePiers.isEmpty()) {
                 try {
-                    condition.await();
+                    pierCondition.await();
                 } catch (InterruptedException e) {
                     LOGGER.log(Level.WARN, "Thread was interrupted");
                 }
@@ -77,39 +79,59 @@ public class Seaport {
             busyPiers.add(pier);
             return pier;
         } finally {
-            lock.unlock();
+            pierLock.unlock();
         }
     }
 
     public void releasePier(Pier pier) {
         try {
-            lock.lock();
+            pierLock.lock();
             if (busyPiers.remove(pier)) {
                 freePiers.add(pier);
             }
         } finally {
-            condition.signal();
-            lock.unlock();
+            pierCondition.signal();
+            pierLock.unlock();
         }
     }
 
     public void loadShip(Ship ship) {
         LOGGER.log(Level.INFO, "Ship № {} is loading", ship.getShipId());
-        while (fullness.get() > 0 && ship.addContainer()) {
-            fullness.decrementAndGet();
-        }
-        if (fullness.get() == 0) {
-            LOGGER.log(Level.INFO, "Seaport has no more containers");
+        while (!ship.isFull()) {
+            try {
+                seaportLock.lock();
+                if (fullness.get() > 0) {
+                    ship.addContainer();
+                    fullness.decrementAndGet();
+                }
+                LOGGER.log(Level.INFO, "Seaport capacity: {}, fullness: {}", capacity, fullness);
+                if (fullness.get() == 0) {
+                    LOGGER.log(Level.INFO, "Seaport has no containers left");
+                    break;
+                }
+            } finally {
+                seaportLock.unlock();
+            }
         }
     }
 
     public void unloadShip(Ship ship) {
         LOGGER.log(Level.INFO, "Ship № {} is unloading", ship.getShipId());
-        while (fullness.get() + 1 <= capacity && ship.getContainer()) {
-            fullness.incrementAndGet();
-        }
-        if (fullness.get() == capacity) {
-            LOGGER.log(Level.INFO, "Seaport has no more free space left");
+        while (!ship.isEmpty()) {
+            try {
+                seaportLock.lock();
+                if (fullness.get() < capacity) {
+                    ship.deleteContainer();
+                    fullness.incrementAndGet();
+                }
+                LOGGER.log(Level.INFO, "Seaport capacity: {}, fullness: {}", capacity, fullness);
+                if (fullness.get() == capacity) {
+                    LOGGER.log(Level.INFO, "Seaport has no more free space left");
+                    break;
+                }
+            } finally {
+                seaportLock.unlock();
+            }
         }
     }
 
