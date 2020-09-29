@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -74,7 +75,7 @@ public class Seaport {
                 try {
                     pierCondition.await();
                 } catch (InterruptedException e) {
-                    LOGGER.log(Level.WARN, "Thread was interrupted");
+                    LOGGER.log(Level.ERROR, "Thread was interrupted");
                 }
             }
             Optional<Pier> pierOptional = freePiers.stream().findAny();
@@ -116,6 +117,11 @@ public class Seaport {
             } finally {
                 seaportLock.unlock();
             }
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.ERROR, "Thread was interrupted");
+            }
         }
     }
 
@@ -135,6 +141,11 @@ public class Seaport {
                 }
             } finally {
                 seaportLock.unlock();
+            }
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.ERROR, "Thread was interrupted");
             }
         }
     }
