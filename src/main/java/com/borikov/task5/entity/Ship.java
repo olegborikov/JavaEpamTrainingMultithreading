@@ -80,14 +80,14 @@ public class Ship implements Runnable {
 
     public void addContainer() {
         fullness++;
-        LOGGER.log(Level.INFO, "Container was load to ship № {}", shipId);
+        LOGGER.log(Level.INFO, "Container was loaded to ship № {}", shipId);
         LOGGER.log(Level.INFO, "Ship № {} capacity: {}, fullness: {}",
                 shipId, capacity, fullness);
     }
 
     public void deleteContainer() {
         fullness--;
-        LOGGER.log(Level.INFO, "Container was unload from ship № {}", shipId);
+        LOGGER.log(Level.INFO, "Container was unloaded from ship № {}", shipId);
         LOGGER.log(Level.INFO, "Ship № {} capacity: {}, fullness: {}",
                 shipId, capacity, fullness);
     }
@@ -145,7 +145,7 @@ public class Ship implements Runnable {
         sb.append(", capacity=").append(capacity);
         sb.append(", fullness=").append(fullness);
         sb.append(", shipAppointment=").append(shipAppointment);
-        sb.append(", shipState=").append(shipState);
+        sb.append(", shipState=").append(shipState.getClass().getSimpleName());
         sb.append(", pier=").append(pier);
         sb.append('}');
         return sb.toString();

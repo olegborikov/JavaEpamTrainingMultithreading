@@ -17,14 +17,14 @@ public class Seaport {
     private static final Logger LOGGER = LogManager.getLogger();
     private static Seaport instance;
     private static final int AMOUNT_OF_PIERS = 3;
-    private final int capacity = 10;
+    private static final int CAPACITY = 10;
     private AtomicInteger fullness;
     private final List<Pier> freePiers = new ArrayList<>();
     private final List<Pier> busyPiers = new ArrayList<>();
     private static final Lock lock = new ReentrantLock();
     private static final Lock pierLock = new ReentrantLock();
-    private static final Lock seaportLock = new ReentrantLock();
     private static final Condition pierCondition = pierLock.newCondition();
+    private static final Lock seaportLock = new ReentrantLock();
 
     private Seaport() {
         fullness = new AtomicInteger();
@@ -34,8 +34,12 @@ public class Seaport {
         }
     }
 
+    public static int getAmountOfPiers() {
+        return AMOUNT_OF_PIERS;
+    }
+
     public int getCapacity() {
-        return capacity;
+        return CAPACITY;
     }
 
     public AtomicInteger getFullness() {
@@ -104,7 +108,7 @@ public class Seaport {
                     ship.addContainer();
                     fullness.decrementAndGet();
                 }
-                LOGGER.log(Level.INFO, "Seaport capacity: {}, fullness: {}", capacity, fullness);
+                LOGGER.log(Level.INFO, "Seaport capacity: {}, fullness: {}", CAPACITY, fullness);
                 if (fullness.get() == 0) {
                     LOGGER.log(Level.INFO, "Seaport has no containers left");
                     break;
@@ -120,12 +124,12 @@ public class Seaport {
         while (!ship.isEmpty()) {
             try {
                 seaportLock.lock();
-                if (fullness.get() < capacity) {
+                if (fullness.get() < CAPACITY) {
                     ship.deleteContainer();
                     fullness.incrementAndGet();
                 }
-                LOGGER.log(Level.INFO, "Seaport capacity: {}, fullness: {}", capacity, fullness);
-                if (fullness.get() == capacity) {
+                LOGGER.log(Level.INFO, "Seaport capacity: {}, fullness: {}", CAPACITY, fullness);
+                if (fullness.get() == CAPACITY) {
                     LOGGER.log(Level.INFO, "Seaport has no more free space left");
                     break;
                 }
@@ -137,8 +141,7 @@ public class Seaport {
 
     @Override
     public int hashCode() {
-        int result = capacity;
-        result = 31 * result + (fullness != null ? fullness.hashCode() : 0);
+        int result = fullness != null ? fullness.hashCode() : 0;
         result = 31 * result + (freePiers != null ? freePiers.hashCode() : 0);
         result = 31 * result + (busyPiers != null ? busyPiers.hashCode() : 0);
         return result;
@@ -147,8 +150,7 @@ public class Seaport {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Seaport{");
-        sb.append("capacity=").append(capacity);
-        sb.append(", fullness=").append(fullness);
+        sb.append("fullness=").append(fullness);
         sb.append(", freePiers=").append(freePiers);
         sb.append(", busyPiers=").append(busyPiers);
         sb.append('}');

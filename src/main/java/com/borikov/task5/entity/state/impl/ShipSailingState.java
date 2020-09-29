@@ -11,7 +11,7 @@ public class ShipSailingState implements ShipState {
 
     @Override
     public void doAction(Ship ship) {
-        ship.setShipState(new ShipArrivingState());
         LOGGER.log(Level.INFO, "Ship № {} is arriving to seaport", ship.getShipId());
+        ship.setShipState(new ShipArrivingState());
     }
 }

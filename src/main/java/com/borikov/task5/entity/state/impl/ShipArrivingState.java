@@ -20,20 +20,20 @@ public class ShipArrivingState implements ShipState {
         ship.setPier(Optional.of(pier));
         switch (ship.getShipAppointment()) {
             case LOADING -> {
-                ship.setShipState(new ShipLoadingState());
                 LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct to " +
                         "port № {} for loading", ship.getShipId(), pier.getPierId());
+                ship.setShipState(new ShipLoadingState());
             }
             case UNLOADING -> {
-                ship.setShipState(new ShipUnloadingState());
                 LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct " +
                         "to port № {} for unloading", ship.getShipId(), pier.getPierId());
+                ship.setShipState(new ShipUnloadingState());
             }
             case UNLOADING_LOADING -> {
-                ship.setShipState(new ShipUnloadingState());
                 LOGGER.log(Level.INFO, "Ship № {} arrived to seaport and direct " +
                                 "to port № {} for unloading and loading",
                         ship.getShipId(), pier.getPierId());
+                ship.setShipState(new ShipUnloadingState());
             }
         }
     }

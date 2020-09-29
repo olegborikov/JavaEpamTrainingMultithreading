@@ -19,8 +19,8 @@ public class ShipDepartingState implements ShipState {
         Optional<Pier> pier = ship.getPier();
         if (pier.isPresent()) {
             seaport.releasePier(pier.get());
-            LOGGER.log(Level.INFO, "Ship № {} depart from seaport", ship.getShipId());
             ship.setPier(Optional.empty());
+            LOGGER.log(Level.INFO, "Ship № {} depart from seaport", ship.getShipId());
         }
         ship.setShipState(new ShipSailingState());
     }
